@@ -1,0 +1,40 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+model ScrapeRequest {
+  id        String   @id @default(uuid())
+  actorName String // e.g. "apify/web-scraper" or "apify/google-maps-scraper"
+  status    String // "PENDING", "RUNNING", "COMPLETED", "FAILED"
+  inputData Json // JSON of input parameters
+  runId     String? // Apify run identifier
+  datasetId String? // Apify dataset identifier for downloading data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  responses ScrapeResponse[]
+  logs      ScrapeLog[]
+}
+
+model ScrapeResponse {
+  id              String        @id @default(uuid())
+  scrapeRequestId String
+  scrapeRequest   ScrapeRequest @relation(fields: [scrapeRequestId], references: [id], onDelete: Cascade)
+  data            Json // JSON of scraped items
+  createdAt       DateTime      @default(now())
+}
+
+model ScrapeLog {
+  id              String        @id @default(uuid())
+  scrapeRequestId String
+  scrapeRequest   ScrapeRequest @relation(fields: [scrapeRequestId], references: [id], onDelete: Cascade)
+  level           String // "INFO", "WARN", "ERROR"
+  message         String
+  createdAt       DateTime      @default(now())
+}
