@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
-  Play, 
-  History, 
-  Search, 
-  Filter, 
-  Database, 
-  Terminal, 
-  Download, 
-  RefreshCw, 
-  AlertCircle, 
-  CheckCircle2, 
-  Clock, 
-  Loader2, 
-  ExternalLink, 
-  Instagram, 
-  Heart, 
-  MessageSquare, 
-  ChevronLeft, 
-  ChevronRight, 
-  Code2, 
+import {
+  Play,
+  History,
+  Search,
+  Filter,
+  Database,
+  Terminal,
+  Download,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  ExternalLink,
+  Instagram,
+  Heart,
+  MessageSquare,
+  ChevronLeft,
+  ChevronRight,
+  Code2,
   FileText,
   HelpCircle,
   Copy,
@@ -39,24 +39,24 @@ import type { ScrapeRequest, ScrapeLog } from './services/api';
 export default function App() {
   // Navigation tabs
   const [activeTab, setActiveTab] = useState<'dashboard' | 'history'>('dashboard');
-  
+
   // History and API status states
   const [requests, setRequests] = useState<ScrapeRequest[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Trigger Scrape states
   const [triggerMode, setTriggerMode] = useState<'instagram' | 'generic'>('instagram');
   const [instagramUsernames, setInstagramUsernames] = useState('');
   const [instagramResultsType, setInstagramResultsType] = useState('posts');
   const [instagramResultsLimit, setInstagramResultsLimit] = useState(3);
-  
+
   const [genericActorName, setGenericActorName] = useState('apify/web-scraper');
   const [genericInputData, setGenericInputData] = useState('{\n  "startUrls": [{"url": "https://crawlee.dev"}],\n  "maxRequestsPerCrawl": 10\n}');
-  
+
   const [triggering, setTriggering] = useState(false);
   const [triggerSuccess, setTriggerSuccess] = useState<string | null>(null);
-  
+
   // Search, Filter, Pagination states
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -70,7 +70,7 @@ export default function App() {
   const [selectedResults, setSelectedResults] = useState<any[] | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [detailsTab, setDetailsTab] = useState<'results' | 'logs' | 'config'>('results');
-  
+
   // Polling toggle
   const [isPolling, setIsPolling] = useState(true);
 
@@ -100,23 +100,23 @@ export default function App() {
   // Polling logic for running or pending scraping jobs
   useEffect(() => {
     if (!isPolling) return;
-    
+
     // Check if there are any pending or running requests
     const hasActiveRequests = requests.some(r => r.status === 'RUNNING' || r.status === 'PENDING');
-    
+
     // If we have active requests, poll more frequently (every 5 seconds)
     // If not, we still poll but less frequently (every 15 seconds) to catch webhooks or external runs
     const intervalTime = hasActiveRequests ? 5000 : 15000;
-    
+
     const interval = setInterval(() => {
       loadHistory(true);
-      
+
       // Also update selected request details in real-time if it is open and active
       if (selectedRequest && (selectedRequest.status === 'RUNNING' || selectedRequest.status === 'PENDING')) {
         refreshSelectedRequestDetails(selectedRequest.id);
       }
     }, intervalTime);
-    
+
     return () => clearInterval(interval);
   }, [isPolling, requests, selectedRequest, loadHistory]);
 
@@ -125,10 +125,10 @@ export default function App() {
     try {
       const requestDetails = await scrapeApi.getScrapeStatus(id);
       setSelectedLogs(requestDetails.logs || []);
-      
+
       // Update its status inside requests state list
       setRequests(prev => prev.map(req => req.id === id ? { ...req, status: requestDetails.status } : req));
-      
+
       // If status changed to COMPLETED, fetch dataset results
       if (requestDetails.status === 'COMPLETED') {
         const results = await scrapeApi.getScrapeResults(id);
@@ -146,12 +146,12 @@ export default function App() {
     setSelectedResults(null);
     setLoadingDetails(true);
     setDetailsTab('results'); // default to results tab
-    
+
     try {
       // 1. Fetch current status & logs
       const reqStatus = await scrapeApi.getScrapeStatus(request.id);
       setSelectedLogs(reqStatus.logs || []);
-      
+
       // 2. Fetch results if COMPLETED
       if (reqStatus.status === 'COMPLETED') {
         const results = await scrapeApi.getScrapeResults(request.id);
@@ -183,7 +183,7 @@ export default function App() {
           .split(',')
           .map(u => u.trim())
           .filter(u => u.length > 0);
-          
+
         if (usernamesArray.length === 0) {
           throw new Error('Please enter at least one Instagram username.');
         }
@@ -210,19 +210,19 @@ export default function App() {
       }
 
       setTriggerSuccess(`Request submitted successfully! Job status: ${result.status}. Job ID: ${result.requestId}`);
-      
+
       // Clear forms
       if (triggerMode === 'instagram') {
         setInstagramUsernames('');
       }
-      
+
       // Reload history and automatically route user to history tab
       await loadHistory();
       setTimeout(() => {
         setActiveTab('history');
         setTriggerSuccess(null);
       }, 2000);
-      
+
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Failed to submit scraping request.');
@@ -253,14 +253,14 @@ export default function App() {
   // Download results handler (CSV)
   const handleDownloadCSV = (request: ScrapeRequest, data: any[]) => {
     if (!data || data.length === 0) return;
-    
+
     // Find all unique keys
     const keys = Array.from(new Set(data.flatMap(item => Object.keys(item))));
     const csvRows = [];
-    
+
     // Header row
     csvRows.push(keys.join(','));
-    
+
     // Value rows
     for (const item of data) {
       const values = keys.map(key => {
@@ -272,7 +272,7 @@ export default function App() {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvContent = `data:text/csv;charset=utf-8,${encodeURIComponent(csvRows.join('\n'))}`;
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', csvContent);
@@ -292,18 +292,18 @@ export default function App() {
   const filteredRequests = useMemo(() => {
     return requests.filter(request => {
       // 1. Search filter
-      const matchesSearch = 
+      const matchesSearch =
         request.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         request.actorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (request.runId && request.runId.toLowerCase().includes(searchTerm.toLowerCase())) ||
         JSON.stringify(request.inputData).toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       // 2. Status filter
       const matchesStatus = statusFilter === 'ALL' || request.status === statusFilter;
-      
+
       // 3. Actor filter
       const matchesActor = actorFilter === 'ALL' || request.actorName === actorFilter;
-      
+
       return matchesSearch && matchesStatus && matchesActor;
     });
   }, [requests, searchTerm, statusFilter, actorFilter]);
@@ -352,7 +352,7 @@ export default function App() {
       </div>
 
       <div className="relative z-10 flex flex-col md:flex-row min-h-screen">
-        
+
         {/* Sidebar Nav */}
         <aside className="w-full md:w-64 bg-zinc-950/70 backdrop-blur-md border-b md:border-b-0 md:border-r border-zinc-800/80 p-6 flex flex-col justify-between">
           <div>
@@ -371,22 +371,20 @@ export default function App() {
             <nav className="space-y-1.5">
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === 'dashboard'
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'dashboard'
                     ? 'bg-purple-600/15 text-purple-400 border-l-2 border-purple-500'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
-                }`}
+                  }`}
               >
                 <Play className="h-4 w-4" />
                 Scraper Dashboard
               </button>
               <button
                 onClick={() => setActiveTab('history')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === 'history'
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'history'
                     ? 'bg-purple-600/15 text-purple-400 border-l-2 border-purple-500'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
-                }`}
+                  }`}
               >
                 <History className="h-4 w-4" />
                 Scrape History
@@ -401,7 +399,7 @@ export default function App() {
                 <span className={`h-2.5 w-2.5 rounded-full ${isPolling ? 'bg-purple-500 animate-pulse' : 'bg-zinc-600'}`} />
                 Polling Active
               </span>
-              <button 
+              <button
                 onClick={() => setIsPolling(!isPolling)}
                 className="text-[10px] text-purple-400 hover:text-purple-300 font-semibold uppercase tracking-wider bg-purple-500/5 hover:bg-purple-500/10 px-2 py-0.5 rounded transition"
               >
@@ -416,7 +414,7 @@ export default function App() {
 
         {/* Main Content Pane */}
         <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-          
+
           {/* Header */}
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
@@ -424,17 +422,17 @@ export default function App() {
                 {activeTab === 'dashboard' ? 'Trigger New Scraper' : 'Scrape History & Analytics'}
               </h2>
               <p className="text-zinc-400 text-sm">
-                {activeTab === 'dashboard' 
+                {activeTab === 'dashboard'
                   ? 'Initiate a scraping job with predefined templates or custom settings.'
                   : 'Monitor scraping requests, browse results datasets, and examine execution logs.'}
               </p>
             </div>
-            
+
             {/* Quick Stats / Refresh */}
             <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => loadHistory(false)}
                 disabled={loadingHistory}
                 className="bg-zinc-900/50 hover:bg-zinc-900 border-zinc-800 text-zinc-300 font-medium h-9"
@@ -469,7 +467,7 @@ export default function App() {
           {/* TAB 1: DASHBOARD */}
           {activeTab === 'dashboard' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl">
-              
+
               {/* Form Card (2/3 width) */}
               <div className="lg:col-span-2">
                 <Card className="bg-zinc-950/40 backdrop-blur-md border-zinc-800/80 shadow-2xl overflow-hidden">
@@ -482,22 +480,20 @@ export default function App() {
                       <div className="flex bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
                         <button
                           onClick={() => setTriggerMode('instagram')}
-                          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all ${
-                            triggerMode === 'instagram'
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all ${triggerMode === 'instagram'
                               ? 'bg-purple-600 text-white shadow-sm shadow-purple-500/20'
                               : 'text-zinc-400 hover:text-zinc-200'
-                          }`}
+                            }`}
                         >
                           <Instagram className="h-3.5 w-3.5" />
                           Instagram Scraper
                         </button>
                         <button
                           onClick={() => setTriggerMode('generic')}
-                          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all ${
-                            triggerMode === 'generic'
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all ${triggerMode === 'generic'
                               ? 'bg-purple-600 text-white shadow-sm shadow-purple-500/20'
                               : 'text-zinc-400 hover:text-zinc-200'
-                          }`}
+                            }`}
                         >
                           <Code2 className="h-3.5 w-3.5" />
                           Custom Actor
@@ -508,7 +504,7 @@ export default function App() {
 
                   <CardContent className="p-6">
                     <form onSubmit={handleTriggerScrape} className="space-y-6">
-                      
+
                       {/* INSTAGRAM FORM */}
                       {triggerMode === 'instagram' && (
                         <div className="space-y-5">
@@ -532,8 +528,8 @@ export default function App() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <label className="text-sm font-semibold text-zinc-300">Results Type</label>
-                              <Select 
-                                value={instagramResultsType} 
+                              <Select
+                                value={instagramResultsType}
                                 onValueChange={setInstagramResultsType}
                               >
                                 <SelectTrigger className="bg-zinc-900/50 border-zinc-800/80 focus:ring-purple-500 text-zinc-200 h-10">
@@ -702,7 +698,7 @@ export default function App() {
                   <CardTitle className="text-lg text-white font-bold">Scraping History & Logs</CardTitle>
                   <CardDescription className="text-zinc-400 text-xs">A comprehensive log of all triggered scraping runs and their results.</CardDescription>
                 </div>
-                
+
                 {/* Search and Filters panel */}
                 <div className="flex flex-wrap items-center gap-3">
                   {/* Search input */}
@@ -747,7 +743,7 @@ export default function App() {
                   </Select>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="p-0">
                 <Table>
                   <TableHeader className="bg-zinc-900/30 border-b border-zinc-900/80">
@@ -850,13 +846,13 @@ export default function App() {
                     )}
                   </TableBody>
                 </Table>
-                
+
                 {/* Pagination Controls */}
                 <div className="flex items-center justify-between border-t border-zinc-900/80 px-6 py-4 bg-zinc-950/20">
                   <div className="text-xs text-zinc-500">
                     Showing <span className="font-semibold text-zinc-400">{filteredRequests.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> to <span className="font-semibold text-zinc-400">{Math.min(currentPage * itemsPerPage, filteredRequests.length)}</span> of <span className="font-semibold text-zinc-400">{filteredRequests.length}</span> requests
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -867,7 +863,7 @@ export default function App() {
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    
+
                     <span className="text-xs text-zinc-400 font-semibold px-2">
                       Page {currentPage} of {totalPages}
                     </span>
@@ -893,7 +889,7 @@ export default function App() {
       {/* DETAIL DRAWER / MODAL DIALOG */}
       <Dialog open={selectedRequest !== null} onOpenChange={(open: boolean) => !open && setSelectedRequest(null)}>
         <DialogContent className="bg-zinc-950 border-zinc-800/80 text-zinc-100 max-w-none sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] xl:max-w-[70vw] w-full h-[90vh] md:h-[85vh] flex flex-col p-0 overflow-hidden shadow-2xl">
-          
+
           {selectedRequest && (
             <>
               {/* Header */}
@@ -907,12 +903,12 @@ export default function App() {
                     ID: {selectedRequest.id}
                   </DialogDescription>
                 </div>
-                
+
                 {/* Download Buttons for completed runs */}
                 {selectedRequest.status === 'COMPLETED' && selectedResults && selectedResults.length > 0 && (
                   <div className="flex items-center gap-2 pr-6">
-                    <Button 
-                      size="xs" 
+                    <Button
+                      size="xs"
                       variant="outline"
                       onClick={() => handleDownloadJSON(selectedRequest, selectedResults)}
                       className="bg-zinc-900 hover:bg-zinc-900 border-zinc-800 text-zinc-300 text-[11px] h-7 px-2.5 font-semibold"
@@ -920,8 +916,8 @@ export default function App() {
                       <Download className="mr-1 h-3.5 w-3.5" />
                       JSON
                     </Button>
-                    <Button 
-                      size="xs" 
+                    <Button
+                      size="xs"
                       variant="outline"
                       onClick={() => handleDownloadCSV(selectedRequest, selectedResults)}
                       className="bg-zinc-900 hover:bg-zinc-900 border-zinc-800 text-zinc-300 text-[11px] h-7 px-2.5 font-semibold"
@@ -937,35 +933,32 @@ export default function App() {
               <div className="border-b border-zinc-900 px-6 bg-zinc-950 overflow-x-auto scrollbar-none flex-nowrap scroll-smooth">
                 <Tabs value={detailsTab} onValueChange={(val: any) => setDetailsTab(val)} className="w-full">
                   <TabsList className="bg-transparent border-b-0 p-0 flex gap-6 h-12 justify-start flex-nowrap w-full">
-                    <TabsTrigger 
-                      value="results" 
-                      className={`shrink-0 rounded-none bg-transparent hover:text-white px-0 border-b-2 h-full text-xs font-bold transition-all ${
-                        detailsTab === 'results' 
-                          ? 'border-purple-500 text-purple-400' 
+                    <TabsTrigger
+                      value="results"
+                      className={`shrink-0 rounded-none bg-transparent hover:text-white px-0 border-b-2 h-full text-xs font-bold transition-all ${detailsTab === 'results'
+                          ? 'border-purple-500 text-purple-400'
                           : 'border-transparent text-zinc-400'
-                      }`}
+                        }`}
                     >
                       <Database className="mr-1.5 h-3.5 w-3.5" />
                       Scraped Results ({selectedResults?.length || 0})
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="logs" 
-                      className={`shrink-0 rounded-none bg-transparent hover:text-white px-0 border-b-2 h-full text-xs font-bold transition-all ${
-                        detailsTab === 'logs' 
-                          ? 'border-purple-500 text-purple-400' 
+                    <TabsTrigger
+                      value="logs"
+                      className={`shrink-0 rounded-none bg-transparent hover:text-white px-0 border-b-2 h-full text-xs font-bold transition-all ${detailsTab === 'logs'
+                          ? 'border-purple-500 text-purple-400'
                           : 'border-transparent text-zinc-400'
-                      }`}
+                        }`}
                     >
                       <Terminal className="mr-1.5 h-3.5 w-3.5" />
                       Execution Logs ({selectedLogs.length})
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="config" 
-                      className={`shrink-0 rounded-none bg-transparent hover:text-white px-0 border-b-2 h-full text-xs font-bold transition-all ${
-                        detailsTab === 'config' 
-                          ? 'border-purple-500 text-purple-400' 
+                    <TabsTrigger
+                      value="config"
+                      className={`shrink-0 rounded-none bg-transparent hover:text-white px-0 border-b-2 h-full text-xs font-bold transition-all ${detailsTab === 'config'
+                          ? 'border-purple-500 text-purple-400'
                           : 'border-transparent text-zinc-400'
-                      }`}
+                        }`}
                     >
                       <FileText className="mr-1.5 h-3.5 w-3.5" />
                       Config Parameters
@@ -976,7 +969,7 @@ export default function App() {
 
               {/* Body Content */}
               <div className="flex-1 overflow-y-auto p-6 min-h-0 bg-[#0c0c0e]">
-                
+
                 {/* Loader in dialog */}
                 {loadingDetails && (
                   <div className="flex flex-col items-center justify-center py-24 text-zinc-500">
@@ -995,11 +988,11 @@ export default function App() {
                             <Clock className="h-8 w-8 mx-auto mb-2 text-zinc-600" />
                             <p className="font-semibold text-zinc-400 mb-1">Results not available yet</p>
                             <p className="text-xs">
-                              {selectedRequest.status === 'RUNNING' 
+                              {selectedRequest.status === 'RUNNING'
                                 ? 'The scraping job is currently running in the cloud. Check back in a few moments.'
                                 : selectedRequest.status === 'FAILED'
-                                ? 'This scraping run failed. Inspect the execution logs tab to debug.'
-                                : 'This request is pending execution.'}
+                                  ? 'This scraping run failed. Inspect the execution logs tab to debug.'
+                                  : 'This request is pending execution.'}
                             </p>
                           </div>
                         ) : !selectedResults || selectedResults.length === 0 ? (
@@ -1038,7 +1031,7 @@ export default function App() {
                                       {item.type || 'post'}
                                     </span>
                                   </div>
-                                  
+
                                   {/* Caption and content */}
                                   <div className="p-3">
                                     <p className="text-zinc-300 text-xs line-clamp-3 mb-3 leading-relaxed">
@@ -1094,7 +1087,7 @@ export default function App() {
                           <span className="text-xs text-zinc-400 font-semibold">Parsed logs from database execution history:</span>
                           <span className="text-[11px] text-zinc-600 font-mono">Real-time polling: active</span>
                         </div>
-                        
+
                         <div className="bg-zinc-950 border border-zinc-900 rounded-lg p-4 h-96 overflow-y-auto text-xs font-mono space-y-1.5 flex flex-col justify-start">
                           {selectedLogs.length === 0 ? (
                             <div className="text-zinc-600 py-12 text-center select-none">
@@ -1106,7 +1099,7 @@ export default function App() {
                               if (log.level === 'WARN') levelColor = 'text-amber-500';
                               if (log.level === 'ERROR') levelColor = 'text-rose-500';
                               if (log.level === 'INFO') levelColor = 'text-zinc-300';
-                              
+
                               return (
                                 <div key={log.id} className="leading-relaxed hover:bg-zinc-900/35 px-1 py-0.5 rounded transition">
                                   <span className="text-zinc-600">[{new Date(log.createdAt).toLocaleTimeString()}]</span>{' '}
@@ -1135,7 +1128,7 @@ export default function App() {
                               <div><span className="text-zinc-600">Last Update:</span> {new Date(selectedRequest.updatedAt).toLocaleString()}</div>
                             </div>
                           </div>
-                          
+
                           <div className="bg-zinc-950 border border-zinc-900 rounded-lg p-4 space-y-2">
                             <h3 className="text-sm font-bold text-zinc-300">Target Config Parameters</h3>
                             <pre className="text-xs text-purple-400 font-mono bg-zinc-900/30 p-2.5 rounded border border-zinc-900 overflow-x-auto whitespace-pre-wrap select-all">
