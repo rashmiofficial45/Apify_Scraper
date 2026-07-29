@@ -12,6 +12,8 @@ router.post('/scrape/instagram', scrape_controller_1.ScrapeController.triggerIns
 router.get('/scrape/status/:id', scrape_controller_1.ScrapeController.getScrapeStatus);
 // Fetch scraping dataset results
 router.get('/scrape/results/:id', scrape_controller_1.ScrapeController.getScrapeResults);
+// Fetch all scraping requests
+router.get('/scrape/requests', scrape_controller_1.ScrapeController.getAllScrapeRequests);
 // Handle webhooks from Apify
 router.post('/webhooks/apify', webhook_controller_1.WebhookController.handleWebhook);
 exports.default = router;

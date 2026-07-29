@@ -301,4 +301,28 @@ export class ScrapeController {
       });
     }
   }
+
+  /**
+   * Retrieves all scraping requests.
+   * GET /api/scrape/requests
+   */
+  static async getAllScrapeRequests(req: Request, res: Response) {
+    try {
+      const requests = await prisma.scrapeRequest.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          logs: {
+            orderBy: { createdAt: 'asc' }
+          }
+        }
+      });
+      return res.json(requests);
+    } catch (error: any) {
+      return res.status(500).json({
+        error: 'Failed to fetch scrape requests.',
+        details: error.message || error
+      });
+    }
+  }
 }
+

@@ -9,7 +9,7 @@ async function runInstagramTest() {
     const port = process.env.PORT || 3000;
     const baseUrl = `http://localhost:${port}/api`;
     // Scrape a public Instagram username
-    const usernames = ['apifytech'];
+    const usernames = ['instagram'];
     const resultsType = 'posts';
     const resultsLimit = 1;
     console.log('1. Triggering Instagram scrape request via API...');

@@ -277,5 +277,28 @@ class ScrapeController {
             });
         }
     }
+    /**
+     * Retrieves all scraping requests.
+     * GET /api/scrape/requests
+     */
+    static async getAllScrapeRequests(req, res) {
+        try {
+            const requests = await db_service_1.prisma.scrapeRequest.findMany({
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    logs: {
+                        orderBy: { createdAt: 'asc' }
+                    }
+                }
+            });
+            return res.json(requests);
+        }
+        catch (error) {
+            return res.status(500).json({
+                error: 'Failed to fetch scrape requests.',
+                details: error.message || error
+            });
+        }
+    }
 }
 exports.ScrapeController = ScrapeController;

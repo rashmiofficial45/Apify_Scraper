@@ -16,6 +16,9 @@ router.get('/scrape/status/:id', ScrapeController.getScrapeStatus);
 // Fetch scraping dataset results
 router.get('/scrape/results/:id', ScrapeController.getScrapeResults);
 
+// Fetch all scraping requests
+router.get('/scrape/requests', ScrapeController.getAllScrapeRequests);
+
 // Handle webhooks from Apify
 router.post('/webhooks/apify', WebhookController.handleWebhook);
 
