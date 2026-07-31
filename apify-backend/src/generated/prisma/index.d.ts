@@ -1127,6 +1127,7 @@ export namespace Prisma {
 
   export type ScrapeRequestMinAggregateOutputType = {
     id: string | null
+    userEmail: string | null
     actorName: string | null
     status: string | null
     runId: string | null
@@ -1137,6 +1138,7 @@ export namespace Prisma {
 
   export type ScrapeRequestMaxAggregateOutputType = {
     id: string | null
+    userEmail: string | null
     actorName: string | null
     status: string | null
     runId: string | null
@@ -1147,6 +1149,7 @@ export namespace Prisma {
 
   export type ScrapeRequestCountAggregateOutputType = {
     id: number
+    userEmail: number
     actorName: number
     status: number
     inputData: number
@@ -1160,6 +1163,7 @@ export namespace Prisma {
 
   export type ScrapeRequestMinAggregateInputType = {
     id?: true
+    userEmail?: true
     actorName?: true
     status?: true
     runId?: true
@@ -1170,6 +1174,7 @@ export namespace Prisma {
 
   export type ScrapeRequestMaxAggregateInputType = {
     id?: true
+    userEmail?: true
     actorName?: true
     status?: true
     runId?: true
@@ -1180,6 +1185,7 @@ export namespace Prisma {
 
   export type ScrapeRequestCountAggregateInputType = {
     id?: true
+    userEmail?: true
     actorName?: true
     status?: true
     inputData?: true
@@ -1264,6 +1270,7 @@ export namespace Prisma {
 
   export type ScrapeRequestGroupByOutputType = {
     id: string
+    userEmail: string | null
     actorName: string
     status: string
     inputData: JsonValue
@@ -1292,6 +1299,7 @@ export namespace Prisma {
 
   export type ScrapeRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    userEmail?: boolean
     actorName?: boolean
     status?: boolean
     inputData?: boolean
@@ -1306,6 +1314,7 @@ export namespace Prisma {
 
   export type ScrapeRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    userEmail?: boolean
     actorName?: boolean
     status?: boolean
     inputData?: boolean
@@ -1317,6 +1326,7 @@ export namespace Prisma {
 
   export type ScrapeRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    userEmail?: boolean
     actorName?: boolean
     status?: boolean
     inputData?: boolean
@@ -1328,6 +1338,7 @@ export namespace Prisma {
 
   export type ScrapeRequestSelectScalar = {
     id?: boolean
+    userEmail?: boolean
     actorName?: boolean
     status?: boolean
     inputData?: boolean
@@ -1337,7 +1348,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ScrapeRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "actorName" | "status" | "inputData" | "runId" | "datasetId" | "createdAt" | "updatedAt", ExtArgs["result"]["scrapeRequest"]>
+  export type ScrapeRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userEmail" | "actorName" | "status" | "inputData" | "runId" | "datasetId" | "createdAt" | "updatedAt", ExtArgs["result"]["scrapeRequest"]>
   export type ScrapeRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     responses?: boolean | ScrapeRequest$responsesArgs<ExtArgs>
     logs?: boolean | ScrapeRequest$logsArgs<ExtArgs>
@@ -1354,6 +1365,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      userEmail: string | null
       actorName: string
       status: string
       inputData: Prisma.JsonValue
@@ -1787,6 +1799,7 @@ export namespace Prisma {
    */
   interface ScrapeRequestFieldRefs {
     readonly id: FieldRef<"ScrapeRequest", 'String'>
+    readonly userEmail: FieldRef<"ScrapeRequest", 'String'>
     readonly actorName: FieldRef<"ScrapeRequest", 'String'>
     readonly status: FieldRef<"ScrapeRequest", 'String'>
     readonly inputData: FieldRef<"ScrapeRequest", 'Json'>
@@ -4378,6 +4391,7 @@ export namespace Prisma {
 
   export const ScrapeRequestScalarFieldEnum: {
     id: 'id',
+    userEmail: 'userEmail',
     actorName: 'actorName',
     status: 'status',
     inputData: 'inputData',
@@ -4520,6 +4534,7 @@ export namespace Prisma {
     OR?: ScrapeRequestWhereInput[]
     NOT?: ScrapeRequestWhereInput | ScrapeRequestWhereInput[]
     id?: StringFilter<"ScrapeRequest"> | string
+    userEmail?: StringNullableFilter<"ScrapeRequest"> | string | null
     actorName?: StringFilter<"ScrapeRequest"> | string
     status?: StringFilter<"ScrapeRequest"> | string
     inputData?: JsonFilter<"ScrapeRequest">
@@ -4533,6 +4548,7 @@ export namespace Prisma {
 
   export type ScrapeRequestOrderByWithRelationInput = {
     id?: SortOrder
+    userEmail?: SortOrderInput | SortOrder
     actorName?: SortOrder
     status?: SortOrder
     inputData?: SortOrder
@@ -4549,6 +4565,7 @@ export namespace Prisma {
     AND?: ScrapeRequestWhereInput | ScrapeRequestWhereInput[]
     OR?: ScrapeRequestWhereInput[]
     NOT?: ScrapeRequestWhereInput | ScrapeRequestWhereInput[]
+    userEmail?: StringNullableFilter<"ScrapeRequest"> | string | null
     actorName?: StringFilter<"ScrapeRequest"> | string
     status?: StringFilter<"ScrapeRequest"> | string
     inputData?: JsonFilter<"ScrapeRequest">
@@ -4562,6 +4579,7 @@ export namespace Prisma {
 
   export type ScrapeRequestOrderByWithAggregationInput = {
     id?: SortOrder
+    userEmail?: SortOrderInput | SortOrder
     actorName?: SortOrder
     status?: SortOrder
     inputData?: SortOrder
@@ -4579,6 +4597,7 @@ export namespace Prisma {
     OR?: ScrapeRequestScalarWhereWithAggregatesInput[]
     NOT?: ScrapeRequestScalarWhereWithAggregatesInput | ScrapeRequestScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ScrapeRequest"> | string
+    userEmail?: StringNullableWithAggregatesFilter<"ScrapeRequest"> | string | null
     actorName?: StringWithAggregatesFilter<"ScrapeRequest"> | string
     status?: StringWithAggregatesFilter<"ScrapeRequest"> | string
     inputData?: JsonWithAggregatesFilter<"ScrapeRequest">
@@ -4695,6 +4714,7 @@ export namespace Prisma {
 
   export type ScrapeRequestCreateInput = {
     id?: string
+    userEmail?: string | null
     actorName: string
     status: string
     inputData: JsonNullValueInput | InputJsonValue
@@ -4708,6 +4728,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUncheckedCreateInput = {
     id?: string
+    userEmail?: string | null
     actorName: string
     status: string
     inputData: JsonNullValueInput | InputJsonValue
@@ -4721,6 +4742,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
     actorName?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     inputData?: JsonNullValueInput | InputJsonValue
@@ -4734,6 +4756,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
     actorName?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     inputData?: JsonNullValueInput | InputJsonValue
@@ -4747,6 +4770,7 @@ export namespace Prisma {
 
   export type ScrapeRequestCreateManyInput = {
     id?: string
+    userEmail?: string | null
     actorName: string
     status: string
     inputData: JsonNullValueInput | InputJsonValue
@@ -4758,6 +4782,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
     actorName?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     inputData?: JsonNullValueInput | InputJsonValue
@@ -4769,6 +4794,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
     actorName?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     inputData?: JsonNullValueInput | InputJsonValue
@@ -4895,6 +4921,21 @@ export namespace Prisma {
     mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -4917,21 +4958,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
@@ -4972,6 +4998,7 @@ export namespace Prisma {
 
   export type ScrapeRequestCountOrderByAggregateInput = {
     id?: SortOrder
+    userEmail?: SortOrder
     actorName?: SortOrder
     status?: SortOrder
     inputData?: SortOrder
@@ -4983,6 +5010,7 @@ export namespace Prisma {
 
   export type ScrapeRequestMaxOrderByAggregateInput = {
     id?: SortOrder
+    userEmail?: SortOrder
     actorName?: SortOrder
     status?: SortOrder
     runId?: SortOrder
@@ -4993,6 +5021,7 @@ export namespace Prisma {
 
   export type ScrapeRequestMinOrderByAggregateInput = {
     id?: SortOrder
+    userEmail?: SortOrder
     actorName?: SortOrder
     status?: SortOrder
     runId?: SortOrder
@@ -5017,6 +5046,24 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -5043,24 +5090,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -5315,29 +5344,6 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
   }
-  export type NestedJsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
@@ -5365,6 +5371,29 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -5482,6 +5511,7 @@ export namespace Prisma {
 
   export type ScrapeRequestCreateWithoutResponsesInput = {
     id?: string
+    userEmail?: string | null
     actorName: string
     status: string
     inputData: JsonNullValueInput | InputJsonValue
@@ -5494,6 +5524,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUncheckedCreateWithoutResponsesInput = {
     id?: string
+    userEmail?: string | null
     actorName: string
     status: string
     inputData: JsonNullValueInput | InputJsonValue
@@ -5522,6 +5553,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUpdateWithoutResponsesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
     actorName?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     inputData?: JsonNullValueInput | InputJsonValue
@@ -5534,6 +5566,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUncheckedUpdateWithoutResponsesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
     actorName?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     inputData?: JsonNullValueInput | InputJsonValue
@@ -5546,6 +5579,7 @@ export namespace Prisma {
 
   export type ScrapeRequestCreateWithoutLogsInput = {
     id?: string
+    userEmail?: string | null
     actorName: string
     status: string
     inputData: JsonNullValueInput | InputJsonValue
@@ -5558,6 +5592,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUncheckedCreateWithoutLogsInput = {
     id?: string
+    userEmail?: string | null
     actorName: string
     status: string
     inputData: JsonNullValueInput | InputJsonValue
@@ -5586,6 +5621,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUpdateWithoutLogsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
     actorName?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     inputData?: JsonNullValueInput | InputJsonValue
@@ -5598,6 +5634,7 @@ export namespace Prisma {
 
   export type ScrapeRequestUncheckedUpdateWithoutLogsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
     actorName?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     inputData?: JsonNullValueInput | InputJsonValue

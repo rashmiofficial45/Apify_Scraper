@@ -26,6 +26,20 @@ export interface ScrapeResults {
   createdAt: string;
 }
 
+const getHeaders = (headers: Record<string, string> = {}): Record<string, string> => {
+  const saved = localStorage.getItem('apify_auth_user');
+  let email = '';
+  if (saved) {
+    try {
+      email = JSON.parse(saved).email || '';
+    } catch (e) {}
+  }
+  return {
+    ...headers,
+    'x-user-email': email
+  };
+};
+
 export const scrapeApi = {
   /**
    * Triggers an Instagram scrape run.
@@ -33,7 +47,7 @@ export const scrapeApi = {
   async triggerInstagramScrape(usernames: string[], resultsType: string = 'posts', resultsLimit: number = 3) {
     const response = await fetch(`${API_BASE_URL}/scrape/instagram`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ usernames, resultsType, resultsLimit })
     });
     
@@ -56,7 +70,7 @@ export const scrapeApi = {
   async triggerGenericScrape(actorName: string, inputData: any) {
     const response = await fetch(`${API_BASE_URL}/scrape/trigger`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ actorName, inputData })
     });
     
@@ -105,7 +119,9 @@ export const scrapeApi = {
    * Retrieves all scrape requests history.
    */
   async getAllScrapeRequests() {
-    const response = await fetch(`${API_BASE_URL}/scrape/requests`);
+    const response = await fetch(`${API_BASE_URL}/scrape/requests`, {
+      headers: getHeaders()
+    });
     
     if (!response.ok) {
       const err = await response.json();

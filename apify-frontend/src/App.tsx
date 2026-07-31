@@ -477,7 +477,7 @@ export default function App() {
                 <div className="p-3 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-lg shadow-purple-500/20 mb-3">
                   <Database className="h-6 w-6 text-white" />
                 </div>
-                <h2 className="text-xl font-bold tracking-tight text-white">Welcome to Antigravity</h2>
+                <h2 className="text-xl font-bold tracking-tight text-white">Welcome to Apify Scraper</h2>
                 <p className="text-xs text-zinc-500 mt-1">Apify Scraping Dashboard & Console</p>
               </div>
 
@@ -601,7 +601,7 @@ export default function App() {
                 <div className="p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-md">
                   <Database className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-lg font-bold tracking-tight text-white">Antigravity Scraper</span>
+                <span className="text-lg font-bold tracking-tight text-white">Apify Scraper</span>
               </div>
               <Button
                 onClick={() => { setShowAuth(true); setAuthMode('login'); }}
@@ -684,7 +684,7 @@ export default function App() {
 
             {/* Footer */}
             <footer className="border-t border-zinc-900 bg-zinc-950/30 py-8 px-6 text-center text-xs text-zinc-600 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-zinc-650 font-mono">Antigravity Scraper Platform © {new Date().getFullYear()}</span>
+              <span className="text-zinc-650 font-mono">Apify Scraper Platform © {new Date().getFullYear()}</span>
               <div className="flex gap-4">
                 <span className="hover:text-zinc-400 transition cursor-pointer">Terms of Service</span>
                 <span className="hover:text-zinc-400 transition cursor-pointer">Privacy Policy</span>
@@ -706,8 +706,8 @@ export default function App() {
                   <Database className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold tracking-tight text-white m-0 leading-none">Antigravity</h1>
-                  <span className="text-[11px] font-semibold tracking-wider text-purple-400 uppercase">Apify Scraper</span>
+                  <h1 className="text-xl font-bold tracking-tight text-white m-0 leading-none">Apify</h1>
+                  <span className="text-[11px] font-semibold tracking-wider text-purple-400 uppercase">Scraper Platform</span>
                 </div>
               </div>
 

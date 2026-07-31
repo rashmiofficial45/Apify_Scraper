@@ -9,6 +9,7 @@ generator client {
 
 model ScrapeRequest {
   id        String   @id @default(uuid())
+  userEmail String? // The email of the user who triggered the request
   actorName String // e.g. "apify/web-scraper" or "apify/google-maps-scraper"
   status    String // "PENDING", "RUNNING", "COMPLETED", "FAILED"
   inputData Json // JSON of input parameters

@@ -131,6 +131,7 @@ export class ScrapeController {
    */
   static async triggerScrape(req: Request, res: Response) {
     const { actorName, inputData } = req.body;
+    const userEmail = (req.headers['x-user-email'] as string) || null;
 
     if (!actorName) {
       return res.status(400).json({ error: 'actorName is required.' });
@@ -145,6 +146,7 @@ export class ScrapeController {
       scrapeRequest = await prisma.scrapeRequest.create({
         data: {
           actorName,
+          userEmail,
           status: 'PENDING',
           inputData: inputData,
           logs: {
@@ -307,8 +309,10 @@ export class ScrapeController {
    * GET /api/scrape/requests
    */
   static async getAllScrapeRequests(req: Request, res: Response) {
+    const userEmail = (req.headers['x-user-email'] as string) || null;
     try {
       const requests = await prisma.scrapeRequest.findMany({
+        where: userEmail ? { userEmail } : {},
         orderBy: { createdAt: 'desc' },
         include: {
           logs: {
