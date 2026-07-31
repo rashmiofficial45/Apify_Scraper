@@ -22,7 +22,16 @@ import {
   FileText,
   HelpCircle,
   Copy,
-  Check
+  Check,
+  User,
+  Lock,
+  Mail,
+  LogOut,
+  ArrowRight,
+  ShieldCheck,
+  Sparkles,
+  LogIn,
+  UserPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -77,29 +86,135 @@ export default function App() {
   // Copy helper state
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // Authentication & View States
+  const [user, setUser] = useState<{ email: string; name?: string } | null>(() => {
+    const saved = localStorage.getItem('apify_auth_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [isBackendOnline, setIsBackendOnline] = useState(true);
+
+  // Auth Handlers
+  const handleSignUp = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthLoading(true);
+
+    if (!authEmail || !authPassword || !authName) {
+      setAuthError('All fields are required.');
+      setAuthLoading(false);
+      return;
+    }
+
+    try {
+      const existingUsers = JSON.parse(localStorage.getItem('apify_users') || '[]');
+      if (existingUsers.some((u: any) => u.email === authEmail)) {
+        setAuthError('An account with this email already exists.');
+        setAuthLoading(false);
+        return;
+      }
+
+      const newUser = { email: authEmail, password: authPassword, name: authName };
+      existingUsers.push(newUser);
+      localStorage.setItem('apify_users', JSON.stringify(existingUsers));
+
+      // Auto login
+      const sessionUser = { email: authEmail, name: authName };
+      localStorage.setItem('apify_auth_user', JSON.stringify(sessionUser));
+      setUser(sessionUser);
+      setAuthEmail('');
+      setAuthPassword('');
+      setAuthName('');
+    } catch (err) {
+      setAuthError('Failed to sign up. Please try again.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthLoading(true);
+
+    if (!authEmail || !authPassword) {
+      setAuthError('Please enter both email and password.');
+      setAuthLoading(false);
+      return;
+    }
+
+    if (authEmail === 'admin@apify.io' && authPassword === 'admin123') {
+      const sessionUser = { email: authEmail, name: 'Apify Administrator' };
+      localStorage.setItem('apify_auth_user', JSON.stringify(sessionUser));
+      setUser(sessionUser);
+      setAuthEmail('');
+      setAuthPassword('');
+      setAuthLoading(false);
+      return;
+    }
+
+    try {
+      const existingUsers = JSON.parse(localStorage.getItem('apify_users') || '[]');
+      const matchedUser = existingUsers.find((u: any) => u.email === authEmail && u.password === authPassword);
+
+      if (!matchedUser) {
+        setAuthError('Invalid email or password.');
+        setAuthLoading(false);
+        return;
+      }
+
+      const sessionUser = { email: matchedUser.email, name: matchedUser.name };
+      localStorage.setItem('apify_auth_user', JSON.stringify(sessionUser));
+      setUser(sessionUser);
+      setAuthEmail('');
+      setAuthPassword('');
+    } catch (err) {
+      setAuthError('Failed to login. Please try again.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('apify_auth_user');
+    setUser(null);
+    setShowAuth(false);
+  };
+
   // Load history function
   const loadHistory = useCallback(async (silent = false) => {
+    if (!user) return;
     if (!silent) setLoadingHistory(true);
     try {
       const data = await scrapeApi.getAllScrapeRequests();
       setRequests(data);
+      setIsBackendOnline(true);
       setError(null);
     } catch (err: any) {
       console.error('Error loading history:', err);
+      setIsBackendOnline(false);
       setError(err.message || 'Failed to fetch scrape requests history.');
     } finally {
       if (!silent) setLoadingHistory(false);
     }
-  }, []);
+  }, [user]);
 
   // Fetch history on load and setup polling
   useEffect(() => {
-    loadHistory();
-  }, [loadHistory]);
+    if (user) {
+      loadHistory();
+    }
+  }, [loadHistory, user]);
 
   // Polling logic for running or pending scraping jobs
   useEffect(() => {
-    if (!isPolling) return;
+    if (!isPolling || !user) return;
 
     // Check if there are any pending or running requests
     const hasActiveRequests = requests.some(r => r.status === 'RUNNING' || r.status === 'PENDING');
@@ -118,7 +233,7 @@ export default function App() {
     }, intervalTime);
 
     return () => clearInterval(interval);
-  }, [isPolling, requests, selectedRequest, loadHistory]);
+  }, [isPolling, requests, selectedRequest, loadHistory, user]);
 
   // Refresh active request details when Dialog is open
   const refreshSelectedRequestDetails = async (id: string) => {
@@ -351,68 +466,328 @@ export default function App() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-950/10 blur-[120px]" />
       </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row min-h-screen">
-
-        {/* Sidebar Nav */}
-        <aside className="w-full md:w-64 bg-zinc-950/70 backdrop-blur-md border-b md:border-b-0 md:border-r border-zinc-800/80 p-6 flex flex-col justify-between">
-          <div>
-            {/* Header / Logo */}
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-lg shadow-purple-500/20">
-                <Database className="h-6 w-6 text-white" />
+      {!user ? (
+        showAuth ? (
+          /* ================= AUTHENTICATION PAGE ================= */
+          <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-12">
+            <Card className="w-full max-w-md bg-zinc-950/70 backdrop-blur-md border-zinc-800/80 shadow-2xl p-6 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 via-indigo-500 to-emerald-500" />
+              
+              <div className="flex flex-col items-center mb-6">
+                <div className="p-3 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-lg shadow-purple-500/20 mb-3">
+                  <Database className="h-6 w-6 text-white" />
+                </div>
+                <h2 className="text-xl font-bold tracking-tight text-white">Welcome to Antigravity</h2>
+                <p className="text-xs text-zinc-500 mt-1">Apify Scraping Dashboard & Console</p>
               </div>
-              <div>
-                <h1 className="text-xl font-bold tracking-tight text-white m-0 leading-none">Antigravity</h1>
-                <span className="text-[11px] font-semibold tracking-wider text-purple-400 uppercase">Apify Scraper</span>
+
+              {authError && (
+                <div className="bg-rose-500/10 border border-rose-500/30 rounded-lg p-3 flex items-start gap-2.5 mb-4">
+                  <AlertCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
+                  <span className="text-xs text-rose-300 font-medium leading-relaxed">{authError}</span>
+                </div>
+              )}
+
+              <div className="flex bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 mb-6">
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('login'); setAuthError(null); }}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all ${
+                    authMode === 'login' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('signup'); setAuthError(null); }}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all ${
+                    authMode === 'signup' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <UserPlus className="h-3.5 w-3.5" />
+                  Create Account
+                </button>
+              </div>
+
+              <form onSubmit={authMode === 'login' ? handleLogin : handleSignUp} className="space-y-4">
+                {authMode === 'signup' && (
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-zinc-400">Full Name</label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+                      <Input
+                        type="text"
+                        placeholder="John Doe"
+                        value={authName}
+                        onChange={(e) => setAuthName(e.target.value)}
+                        className="bg-zinc-900/50 border-zinc-800 focus:ring-purple-500 text-zinc-200 h-10 pl-9"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-400">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+                    <Input
+                      type="email"
+                      placeholder="admin@apify.io"
+                      value={authEmail}
+                      onChange={(e) => setAuthEmail(e.target.value)}
+                      className="bg-zinc-900/50 border-zinc-800 focus:ring-purple-500 text-zinc-200 h-10 pl-9"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-400">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      value={authPassword}
+                      onChange={(e) => setAuthPassword(e.target.value)}
+                      className="bg-zinc-900/50 border-zinc-800 focus:ring-purple-500 text-zinc-200 h-10 pl-9"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold h-10 shadow-lg shadow-purple-500/10 mt-6"
+                >
+                  {authLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : authMode === 'login' ? (
+                    'Access Dashboard'
+                  ) : (
+                    'Register & Login'
+                  )}
+                </Button>
+              </form>
+
+              <div className="mt-6 pt-4 border-t border-zinc-900 flex items-center justify-between text-[11px] text-zinc-500">
+                <span className="flex items-center gap-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                  Demo Mode Active
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAuth(false)}
+                  className="text-purple-400 hover:text-purple-300 font-semibold"
+                >
+                  ← Back to landing
+                </button>
+              </div>
+
+              {authMode === 'login' && (
+                <div className="mt-4 p-2.5 rounded-lg bg-purple-950/20 border border-purple-900/30 text-[10px] text-purple-300 font-mono text-center">
+                  Demo User: <span className="text-white font-bold">admin@apify.io</span> / <span className="text-white font-bold">admin123</span>
+                </div>
+              )}
+            </Card>
+          </div>
+        ) : (
+          /* ================= LANDING PAGE ================= */
+          <div className="relative z-10 flex flex-col min-h-screen w-full">
+            {/* Nav Header */}
+            <header className="border-b border-zinc-900 px-6 py-4 flex items-center justify-between bg-zinc-950/50 backdrop-blur-md sticky top-0 z-50">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-md">
+                  <Database className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-lg font-bold tracking-tight text-white">Antigravity Scraper</span>
+              </div>
+              <Button
+                onClick={() => { setShowAuth(true); setAuthMode('login'); }}
+                className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold h-8 px-4"
+              >
+                Launch Console
+              </Button>
+            </header>
+
+            {/* Hero Section */}
+            <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20 max-w-4xl mx-auto relative">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-purple-500/10 blur-[100px] pointer-events-none" />
+              
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-semibold text-purple-400 mb-6">
+                <Sparkles className="h-3.5 w-3.5" />
+                Next-Gen Cloud Scraper Integration
+              </div>
+              
+              <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                Unleash the Power of{' '}
+                <span className="bg-gradient-to-r from-purple-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+                  Automated Web Scraping
+                </span>
+              </h1>
+              
+              <p className="text-base sm:text-lg text-zinc-400 leading-relaxed mb-8 max-w-2xl">
+                A professional React & Tailwind dashboard built to configure, trigger, and manage scraping operations. Streamline Instagram extractions and custom Apify cloud actions with live tracking.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mx-auto">
+                <Button
+                  onClick={() => { setShowAuth(true); setAuthMode('login'); }}
+                  className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 text-white font-bold h-11 px-8 rounded-lg shadow-lg shadow-purple-600/25 flex items-center justify-center gap-2"
+                >
+                  Enter Cloud Console
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => { setShowAuth(true); setAuthMode('signup'); }}
+                  className="w-full sm:w-auto border-zinc-800 text-zinc-300 hover:text-white bg-zinc-900/40 h-11 px-8 rounded-lg"
+                >
+                  Create Free Account
+                </Button>
+              </div>
+
+              {/* Feature Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-24 text-left">
+                <div className="bg-zinc-950/40 border border-zinc-850 p-6 rounded-xl backdrop-blur-sm">
+                  <div className="h-10 w-10 rounded-lg bg-purple-600/10 border border-purple-500/20 flex items-center justify-center mb-4">
+                    <Instagram className="h-5 w-5 text-purple-400" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white mb-2">Instagram Extractions</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Instantly scrape usernames, posts, carousels, video reels, captions, and comments. Optimized templates ready to trigger.
+                  </p>
+                </div>
+
+                <div className="bg-zinc-950/40 border border-zinc-850 p-6 rounded-xl backdrop-blur-sm">
+                  <div className="h-10 w-10 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center mb-4">
+                    <Code2 className="h-5 w-5 text-indigo-400" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white mb-2">Custom Actors</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Trigger any web scraper or custom cloud agent on Apify. Input parameters with structured raw JSON payloads.
+                  </p>
+                </div>
+
+                <div className="bg-zinc-950/40 border border-zinc-850 p-6 rounded-xl backdrop-blur-sm">
+                  <div className="h-10 w-10 rounded-lg bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+                    <Terminal className="h-5 w-5 text-emerald-400" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white mb-2">Live Console Logs</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Tails active logs from cloud executions in real-time. Built-in severity highlighting and scroll locks.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="border-t border-zinc-900 bg-zinc-950/30 py-8 px-6 text-center text-xs text-zinc-600 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-zinc-650 font-mono">Antigravity Scraper Platform © {new Date().getFullYear()}</span>
+              <div className="flex gap-4">
+                <span className="hover:text-zinc-400 transition cursor-pointer">Terms of Service</span>
+                <span className="hover:text-zinc-400 transition cursor-pointer">Privacy Policy</span>
+              </div>
+            </footer>
+          </div>
+        )
+      ) : (
+        /* ================= MAIN DASHBOARD CONTENT ================= */
+        <>
+        <div className="relative z-10 flex flex-col md:flex-row min-h-screen w-full">
+
+          {/* Sidebar Nav */}
+          <aside className="w-full md:w-64 bg-zinc-950/70 backdrop-blur-md border-b md:border-b-0 md:border-r border-zinc-800/80 p-6 flex flex-col justify-between">
+            <div>
+              {/* Header / Logo */}
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-lg shadow-purple-500/20">
+                  <Database className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold tracking-tight text-white m-0 leading-none">Antigravity</h1>
+                  <span className="text-[11px] font-semibold tracking-wider text-purple-400 uppercase">Apify Scraper</span>
+                </div>
+              </div>
+
+              {/* Nav Menu */}
+              <nav className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'dashboard'
+                      ? 'bg-purple-600/15 text-purple-400 border-l-2 border-purple-500'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
+                    }`}
+                >
+                  <Play className="h-4 w-4" />
+                  Scraper Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('history')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'history'
+                      ? 'bg-purple-600/15 text-purple-400 border-l-2 border-purple-500'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
+                    }`}
+                >
+                  <History className="h-4 w-4" />
+                  Scrape History
+                </button>
+              </nav>
+            </div>
+
+            <div>
+              {/* User Profile Card */}
+              <div className="mt-8 border-t border-zinc-900 pt-6">
+                <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-zinc-900/30 border border-zinc-800/80 mb-4">
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-md shrink-0">
+                    {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-white truncate">{user.name || 'User'}</p>
+                    <p className="text-[10px] text-zinc-500 truncate">{user.email}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    title="Sign Out"
+                    className="text-zinc-500 hover:text-zinc-300 p-1 rounded hover:bg-zinc-850 transition shrink-0"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Connection Details in Sidebar Footer */}
+              <div className="pt-6 border-t border-zinc-900">
+                <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
+                  <span className="flex items-center gap-1.5">
+                    <span className={`h-2.5 w-2.5 rounded-full ${isPolling ? 'bg-purple-500 animate-pulse' : 'bg-zinc-600'}`} />
+                    Polling Active
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsPolling(!isPolling)}
+                    className="text-[10px] text-purple-400 hover:text-purple-300 font-semibold uppercase tracking-wider bg-purple-500/5 hover:bg-purple-500/10 px-2 py-0.5 rounded transition"
+                  >
+                    {isPolling ? 'Pause' : 'Resume'}
+                  </button>
+                </div>
+                <div className="text-[11px] text-zinc-500">
+                  Backend Status:{' '}
+                  {isBackendOnline ? (
+                    <span className="text-emerald-400 font-semibold">Online</span>
+                  ) : (
+                    <span className="text-rose-400 font-semibold">Offline</span>
+                  )}
+                </div>
               </div>
             </div>
+          </aside>
 
-            {/* Nav Menu */}
-            <nav className="space-y-1.5">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'dashboard'
-                    ? 'bg-purple-600/15 text-purple-400 border-l-2 border-purple-500'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
-                  }`}
-              >
-                <Play className="h-4 w-4" />
-                Scraper Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('history')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'history'
-                    ? 'bg-purple-600/15 text-purple-400 border-l-2 border-purple-500'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
-                  }`}
-              >
-                <History className="h-4 w-4" />
-                Scrape History
-              </button>
-            </nav>
-          </div>
-
-          {/* Connection Details in Sidebar Footer */}
-          <div className="mt-8 pt-6 border-t border-zinc-900">
-            <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
-              <span className="flex items-center gap-1.5">
-                <span className={`h-2.5 w-2.5 rounded-full ${isPolling ? 'bg-purple-500 animate-pulse' : 'bg-zinc-600'}`} />
-                Polling Active
-              </span>
-              <button
-                onClick={() => setIsPolling(!isPolling)}
-                className="text-[10px] text-purple-400 hover:text-purple-300 font-semibold uppercase tracking-wider bg-purple-500/5 hover:bg-purple-500/10 px-2 py-0.5 rounded transition"
-              >
-                {isPolling ? 'Pause' : 'Resume'}
-              </button>
-            </div>
-            <div className="text-[11px] text-zinc-500">
-              Backend Status: <span className="text-emerald-400 font-semibold">Online</span>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content Pane */}
+          {/* Main Content Pane */}
         <main className="flex-1 p-6 md:p-8 overflow-y-auto">
 
           {/* Header */}
@@ -1148,6 +1523,8 @@ export default function App() {
 
         </DialogContent>
       </Dialog>
+        </>
+      )}
     </div>
   );
 }
